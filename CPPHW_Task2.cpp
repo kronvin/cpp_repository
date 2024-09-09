@@ -29,8 +29,6 @@ public:
 	{
 		Player player(name, clan, health, damage);
 
-		Player player(const string name, int clan, int health, int damage);
-
 		if (clan == 0)
 		{
 			FirstClan.push_back(player);     // Add Created Player to the First Clan Vector
