@@ -100,6 +100,7 @@ int main()
 
 	int MaxAge, InitialCost;
 	int command;
+	int Years;
 
 
 	while (true)
@@ -138,7 +139,6 @@ int main()
 
 			if (foundbuilding != nullptr)
 			{
-				int Years;
 				cout << "Enter how many years to age the building: " << endl;
 				cin >> Years;
 
