@@ -201,7 +201,7 @@ int main()
 	enemy.Subscribe(&character);                                 // Character subscribes to enemy health update
 
 	int weaponChoice;
-	cout << "Choose your weapon (1 = Sword, 2 = Axe, 3 = Bow): ";
+	cout << "Choose your weapon (0 = Sword, 1 = Axe, 2 = Bow): ";
 	cin >> weaponChoice;
 
 	character.EquipWeapon(weaponChoice);                          // Equip weapon of choice
