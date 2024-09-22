@@ -106,30 +106,53 @@ public:
 
 
 
-class Character : public IHealthUpdate, public IDamagable      // Character subscribes to enemy's health changes
+class Character : public IHealthUpdate, public IDamagable                       // Character subscribes to enemy's health changes
 {
 private:
 
-	unique_ptr<Weapon> activeWeapon;                          // Create vector of weapons unique pointers
+	vector<unique_ptr<Weapon>> weapons;   // All weapons
+	Weapon* activeWeapon = nullptr;      // Active weapon
+	unique_ptr<Weapon> fists;
 
 public:
 
-	void EquipWeapon(unique_ptr<Weapon> weapon)              // Move weapon from vector to character - equip
+	Character() 
 	{
-		activeWeapon = move(weapon);
+		fists = make_unique<Weapon>(5.0f, "Fists");                                  // Create fists as base damage weapon
+	}
+
+	void AddWeapon(unique_ptr<Weapon> weapon) 
+	{
+		weapons.push_back(move(weapon));
+	}
+
+	void EquipWeapon(int index)                                                   // Move weapon from vector to character - equip
+	{
+		if (index >= 0 && index < weapons.size()) 
+		{
+			activeWeapon = weapons[index].get();
+			cout << "Equipped " << activeWeapon->GetName() << endl;
+		}
+		else 
+		{
+			cout << "No weapon equipped!" << endl;
+			activeWeapon = fists.get();
+			cout << "Character will be fighting with " << activeWeapon->GetName() << endl;
+
+		};
 	};
 
-	void ReceiveHealthUpdate(float newHealth) override         // receive health update info (method)
+	void ReceiveHealthUpdate(float newHealth) override                            // receive health update info (method)
 	{
 		cout << "Enemy's health is now " << newHealth << ".\n";
 	}
 
-	Weapon* GetActiveWeapon() const                           // Get info about active weapon
+	Weapon* GetActiveWeapon() const                                               // Get info about active weapon
 	{
-		return activeWeapon.get();
+		return activeWeapon;
 	}
 
-	void AttackWithEquippedWeapon(IDamagable& target)          // As an owner, character is responsible for weapon's damage applying
+	void AttackWithEquippedWeapon(IDamagable& target)                              // As an owner, character is responsible for weapon's damage applying
 	{
 		activeWeapon->DamageActor(target);
 	};
@@ -159,7 +182,6 @@ public:
 	Bow() : Weapon(40.0f, "Bow") {}
 };
 
-
 int main() 
 {
 	Character character;       
@@ -172,33 +194,21 @@ int main()
 	unique_ptr<Weapon> axe = make_unique<Axe>();
 	unique_ptr<Weapon> bow = make_unique<Bow>();
 
-	enemy.Subscribe(&character);                   // Character subscribes to enemy health update
+	character.AddWeapon(move(sword));                            // Character becomes an owner of all weapons
+	character.AddWeapon(move(axe));
+	character.AddWeapon(move(bow));
+
+	enemy.Subscribe(&character);                                 // Character subscribes to enemy health update
 
 	int weaponChoice;
 	cout << "Choose your weapon (1 = Sword, 2 = Axe, 3 = Bow): ";
 	cin >> weaponChoice;
 
-	switch (weaponChoice)                              // After chosing a weapon we make character an owner of active weapon
-	{
-	case 1:
-		character.EquipWeapon(move(sword));
-		break;
-	case 2:
-		character.EquipWeapon(move(axe));
-		break;
-	case 3:
-		character.EquipWeapon(move(bow));
-		break;
-	default:
-		cout << "Invalid choice! Equipping default Sword.\n";
-		character.EquipWeapon(make_unique<Sword>());
-	};
+	character.EquipWeapon(weaponChoice);                          // Equip weapon of choice
 
-	cout << "Character attacks enemy with " << character.GetActiveWeapon()->GetName() << "and deals " << character.GetActiveWeapon()->GetDamage() << endl << "damage!" << endl;      // Use character to get information (use methods of active weapon)
+	cout << "Character attacks enemy with " << character.GetActiveWeapon()->GetName() << " and deals " << character.GetActiveWeapon()->GetDamage() << " damage!" << endl;      // Use character to get information (use methods of active weapon)
 
 	character.AttackWithEquippedWeapon(enemy);       
-
-	cout << "Enemy health is now " << enemy.GetHealth();
 
 	return 0;
 }
