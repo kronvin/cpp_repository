@@ -134,7 +134,7 @@ int main()
 	auto moneyInterface = make_unique<MoneyInterface>();                             // Add money interface to the Character
 	character.Attach(move(moneyInterface));
 
-	cout << "Character's current money equals " << character.GetMoney() << endl;
+	cout << "Character's current money: " << character.GetMoney() << endl;
 
 	Store store;
 
